@@ -1,0 +1,13 @@
+# Hubbub
+
+> Hubbub is a free, open-source (MIT) macOS menu bar app that shows AI coding agent sessions (GitHub Copilot CLI, Claude Code, OpenAI Codex CLI, Gemini CLI, Cursor, and anything via Crew Events) as small interactive 3D scenes. It displays who is working, stuck or waiting for approval, plus tokens, context usage, cost and quota. Local-first, no telemetry. Requires macOS 14+, universal binary, signed and notarized.
+
+## Links
+- [Website](https://karakayautku4.github.io/hubbub/): overview, themes, screenshots
+- [Download (macOS DMG)](https://github.com/karakayautku4/hubbub/releases/latest/download/Hubbub.dmg)
+- [Source and README](https://github.com/karakayautku4/hubbub)
+- [Privacy and network calls](https://github.com/karakayautku4/hubbub#-privacy)
+- [Supported providers](https://github.com/karakayautku4/hubbub/blob/main/docs/PROVIDERS.md)
+- [Creating themes](https://github.com/karakayautku4/hubbub/blob/main/docs/CREATING_THEMES.md)
+- [Homebrew tap](https://github.com/karakayautku4/homebrew-hubbub): brew tap karakayautku4/hubbub && brew install --cask hubbub
+- Developer: https://karakayautku4.dev

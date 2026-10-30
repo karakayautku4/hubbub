@@ -1,0 +1,73 @@
+name: Release
+
+# Pushing a tag v<VERSION> (or running this manually) builds the universal DMG and attaches it to a GitHub Release.
+# Signing/notarization is optional: without the secrets below the app is ad-hoc signed (users right-click -> Open once).
+# Secrets (all optional): DEVELOPER_ID_P12_BASE64, DEVELOPER_ID_P12_PASSWORD, SIGN_IDENTITY,
+#   NOTARY_APPLE_ID, NOTARY_TEAM_ID, NOTARY_APP_PASSWORD. See docs/RELEASING.md.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to build and release (must match VERSION)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  dmg:
+    runs-on: macos-14
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - name: Check tag matches VERSION
+        run: |
+          test "${TAG#v}" = "$(tr -d '[:space:]' < VERSION)" || { echo "Tag ${TAG} does not match VERSION"; exit 1; }
+      - name: Import signing certificate (optional)
+        env:
+          P12: ${{ secrets.DEVELOPER_ID_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.DEVELOPER_ID_P12_PASSWORD }}
+          IDENTITY: ${{ secrets.SIGN_IDENTITY }}
+          NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
+          NOTARY_TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
+          NOTARY_APP_PASSWORD: ${{ secrets.NOTARY_APP_PASSWORD }}
+        run: |
+          if [ -z "$P12" ] || [ -z "$IDENTITY" ]; then echo "No signing secrets; building ad-hoc."; exit 0; fi
+          KC="$RUNNER_TEMP/release.keychain-db"; KCPW=$(uuidgen)
+          security create-keychain -p "$KCPW" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KCPW" "$KC"
+          echo "$P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KC"
+          rm -f "$RUNNER_TEMP/cert.p12"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KCPW" "$KC" >/dev/null
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          echo "SIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+          if [ -n "$NOTARY_APPLE_ID" ] && [ -n "$NOTARY_TEAM_ID" ] && [ -n "$NOTARY_APP_PASSWORD" ]; then
+            xcrun notarytool store-credentials hubbub-notary --apple-id "$NOTARY_APPLE_ID" --team-id "$NOTARY_TEAM_ID" --password "$NOTARY_APP_PASSWORD" >/dev/null
+            echo "NOTARY_PROFILE=hubbub-notary" >> "$GITHUB_ENV"
+          fi
+      - name: Build universal DMG
+        env:
+          NO_LAYOUT: '1' # Finder is not scriptable on hosted runners
+        run: ./make-dmg.sh
+      - name: Cask snippet
+        run: |
+          SHA=$(shasum -a 256 "dist/Hubbub-${TAG#v}.dmg" | cut -d' ' -f1)
+          printf 'version "%s"\nsha256 "%s"\n' "${TAG#v}" "$SHA" | tee dist/cask-snippet.txt
+          cat dist/cask-snippet.txt >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          files: |
+            dist/Hubbub-*.dmg
+            dist/Hubbub.dmg
+            dist/SHA256SUMS.txt
+            dist/cask-snippet.txt
+          generate_release_notes: true

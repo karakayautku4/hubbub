@@ -1,0 +1,19 @@
+.build/
+dist/
+*.app
+*.dmg
+.DS_Store
+.swiftpm/
+xcuserdata/
+*.xcodeproj
+
+# Scratch builds and local notes
+.build-*/
+.reply-*.txt
+*.log
+.env
+.env.*
+docs/images/frames/
+.shots-work/
+.snap/
+site/images/

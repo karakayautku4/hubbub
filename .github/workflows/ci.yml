@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      perf:
+        description: Run the performance regression check
+        type: boolean
+        default: true
+
+jobs:
+  build:
+    # Build matrix note: only macos-14 (Apple silicon, Sonoma, Xcode 15.x) is exercised today. Add `macos-15`
+    # (and `macos-13` for Intel) to this matrix once the app has been verified there.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: swift build -c release
+      # Runs every headless --selftest-* flag with a per-test timeout (same script you can run locally).
+      - name: Self-tests
+        run: scripts/run-selftests.sh
+      # Offscreen render per theme; needs a Metal device, so it is opt-in (also runnable locally: scripts/perf-check.sh).
+      - name: Performance check
+        if: github.event_name == 'workflow_dispatch' && inputs.perf
+        run: scripts/perf-check.sh
+      # `--selftest` and `--selftest-perf` need a window server / Metal; run them locally with `scripts/run-selftests.sh --with-gui`.
+      - name: Build app bundle
+        run: ./build-app.sh
+      # Packaging smoke test (universal build, ad-hoc signature, DMG contents). Releases are built by release.yml / scripts/release.sh.
+      - name: Package DMG
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          NO_LAYOUT: '1'
+        run: ./make-dmg.sh

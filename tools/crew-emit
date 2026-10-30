@@ -1,0 +1,31 @@
+#!/bin/sh
+# crew-emit: append one Hubbub event to ~/.hubbub/events/<session>.jsonl
+#
+# usage: crew-emit <session> <event> [key=value ...]
+#   crew-emit mybot session_start name="Nightly job" model=gpt-4o cwd="$PWD"
+#   crew-emit mybot tool_start id=1 tool=bash detail="npm test"
+#   crew-emit mybot tool_end id=1 ok=false error="exit 1"
+#   crew-emit mybot message input_tokens=1200 output_tokens=300
+#   crew-emit mybot session_end
+#
+# Values "true"/"false" and integers are emitted as JSON booleans/numbers.
+# Set HUBBUB_EVENTS_DIR to use another directory.
+set -eu
+[ $# -ge 2 ] || { sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+
+dir="${HUBBUB_EVENTS_DIR:-$HOME/.hubbub/events}"
+session="$(printf '%s' "$1" | tr -c 'A-Za-z0-9._-' '_')"; event="$2"; shift 2
+mkdir -p "$dir"
+
+esc() { printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' | tr '\n\t' '  '; }
+
+line="{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"session\":\"$(esc "$session")\",\"event\":\"$(esc "$event")\""
+for kv in "$@"; do
+  k="${kv%%=*}"; v="${kv#*=}"
+  case "$v" in
+    true|false) line="$line,\"$(esc "$k")\":$v" ;;
+    ''|*[!0-9]*) line="$line,\"$(esc "$k")\":\"$(esc "$v")\"" ;;
+    *) line="$line,\"$(esc "$k")\":$v" ;;
+  esac
+done
+printf '%s}\n' "$line" >> "$dir/$session.jsonl"

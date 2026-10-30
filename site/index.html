@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hubbub – your AI coding agents as a tiny 3D world in the macOS menu bar</title>
+<meta name="description" content="Hubbub turns Copilot, Claude Code, Codex, Gemini and Cursor sessions into small interactive 3D scenes in your menu bar. See who is working, stuck or waiting, plus tokens, context and cost. Free, open source, local-first.">
+<meta property="og:title" content="Hubbub – AI agents as a tiny 3D world in your menu bar">
+<meta property="og:description" content="Every session is a scene. Every sub-agent is a character with a silly job. Free, open source, no telemetry.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://karakayautku4.github.io/hubbub/images/themes/space.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14102b">
+<link rel="canonical" href="https://karakayautku4.github.io/hubbub/">
+<meta name="keywords" content="Hubbub, macOS menu bar app, AI coding agents, GitHub Copilot CLI, Claude Code, Codex CLI, Gemini CLI, Cursor, agent monitor, token usage, context window, session viewer, SceneKit">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:url" content="https://karakayautku4.github.io/hubbub/">
+<meta property="og:site_name" content="Hubbub">
+<meta property="og:image:alt" content="Hubbub showing AI agents working in a 3D space station">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"SoftwareApplication","name":"Hubbub","applicationCategory":"DeveloperApplication","operatingSystem":"macOS 14 or later",
+ "description":"Free, open-source macOS menu bar app that shows GitHub Copilot CLI, Claude Code, Codex, Gemini CLI and Cursor sessions as small interactive 3D scenes, with tokens, context usage, cost and quota at a glance. Local-first, no telemetry.",
+ "url":"https://karakayautku4.github.io/hubbub/","downloadUrl":"https://github.com/karakayautku4/hubbub/releases/latest/download/Hubbub.dmg",
+ "softwareVersion":"0.1.0","license":"https://opensource.org/licenses/MIT","image":"https://karakayautku4.github.io/hubbub/images/icon.png",
+ "codeRepository":"https://github.com/karakayautku4/hubbub","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+ "author":{"@type":"Person","name":"karakayautku4","url":"https://karakayautku4.dev"}},
+{"@type":"FAQPage","mainEntity":[
+ {"@type":"Question","name":"What is Hubbub?","acceptedAnswer":{"@type":"Answer","text":"Hubbub is a free, open-source macOS menu bar app that turns your AI coding agent sessions (GitHub Copilot CLI, Claude Code, Codex, Gemini CLI, Cursor) into small interactive 3D scenes, showing who is working, stuck or waiting for approval, plus tokens, context fill and cost."}},
+ {"@type":"Question","name":"Does Hubbub send my code or prompts anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Hubbub only reads local session logs read-only, has no telemetry, and never stores or sends message content."}},
+ {"@type":"Question","name":"Which macOS versions does Hubbub support?","acceptedAnswer":{"@type":"Answer","text":"macOS 14 (Sonoma) or later, on Apple silicon and Intel. The download is signed with a Developer ID and notarized by Apple."}},
+ {"@type":"Question","name":"How do I install Hubbub?","acceptedAnswer":{"@type":"Answer","text":"Download Hubbub.dmg from GitHub Releases, drag Hubbub to Applications, or run: brew tap karakayautku4/hubbub && brew install --cask hubbub."}}]}
+]}
+</script>
+<link rel="icon" href="images/icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="#top"><img src="images/icon.png" alt="" width="28" height="28"> Hubbub</a>
+  <nav>
+    <a href="#features">Features</a>
+    <a href="#themes">Themes</a>
+    <a href="#screens">Screenshots</a>
+    <a href="#privacy">Privacy</a>
+    <a href="#faq">FAQ</a>
+    <a class="gh" href="https://github.com/karakayautku4/hubbub">GitHub</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <img class="app-icon" src="images/icon.png" alt="Hubbub app icon" width="112" height="112">
+    <h1>Your AI agents, as a<br><span class="grad">tiny living 3D world</span><br>in the menu bar.</h1>
+    <p class="lead">Every session is a scene. Every sub-agent is a character with a silly job.
+      See who is working, stuck or waiting for you, plus tokens, context and cost, at a glance.</p>
+    <div class="cta">
+      <a class="btn primary" id="dl" href="https://github.com/karakayautku4/hubbub/releases/latest/download/Hubbub.dmg">
+        <span class="apple"></span> Download for macOS</a>
+      <a class="btn" href="https://github.com/karakayautku4/hubbub">View on GitHub</a>
+    </div>
+    <p class="meta"><span id="ver">Free &amp; open source</span> · macOS 14+ · Universal (Apple silicon &amp; Intel) · Signed &amp; notarized</p>
+
+    <div class="window">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <img src="images/hero.gif" alt="Hubbub: agents working in the Space Station theme">
+    </div>
+  </section>
+
+  <section class="strip">
+    <span>Works with</span>
+    <b>GitHub Copilot CLI</b><b>Claude Code</b><b>OpenAI Codex</b><b>Gemini CLI</b><b>Cursor</b><b>+ anything via Crew Events</b>
+  </section>
+
+  <section id="features">
+    <h2>Calm at a glance, fun to look at</h2>
+    <div class="grid">
+      <article><div class="ico">🧑‍🍳</div><h3>Agents as characters</h3>
+        <p>The main agent leads; each sub-agent gets a nameplate, a job and speech bubbles. Stuck, failed and approval-needed states show up on stage.</p></article>
+      <article><div class="ico">📊</div><h3>Simple, honest numbers</h3>
+        <p>Tokens, context fill and cost per session, a weekly Insights chart and a quota bar for Copilot. No walls of text.</p></article>
+      <article><div class="ico">🎭</div><h3>9 themes</h3>
+        <p>Space station, kitchen, prison, football, sheep farm, sneaky ship, spell academy, galactic fleet and a hillside quest. Add your own with JSON.</p></article>
+      <article><div class="ico">🔔</div><h3>Never miss a prompt</h3>
+        <p>Notifications when an agent needs approval, gets stuck or fails. Open the session's terminal in one click.</p></article>
+      <article><div class="ico">🏆</div><h3>Awards &amp; progression</h3>
+        <p>Levels, XP and badges for your agent crew. Optional, and easy to turn off.</p></article>
+      <article><div class="ico">🎃</div><h3>Seasonal fun</h3>
+        <p>Halloween mode drops pumpkins, ghosts and bats over every theme, automatically in season.</p></article>
+    </div>
+  </section>
+
+  <section id="themes" class="dark">
+    <h2>Pick your world</h2>
+    <p class="sub">Click a theme to bring it to life.</p>
+    <div class="themes" id="themeGrid"></div>
+  </section>
+
+  <section id="screens">
+    <h2>The details, kept simple</h2>
+    <div class="tabs" id="shotTabs" role="tablist"></div>
+    <div class="shot"><img id="shotImg" alt=""></div>
+  </section>
+
+  <section id="privacy" class="dark">
+    <h2>Local-first, always</h2>
+    <div class="grid three">
+      <article><h3>No telemetry</h3><p>No analytics, no accounts, no crash reporting.</p></article>
+      <article><h3>Read-only</h3><p>Hubbub reads your agents' local logs read-only. Message content is never stored or sent.</p></article>
+      <article><h3>Open source</h3><p>MIT licensed. Every network call is listed in the <a href="https://github.com/karakayautku4/hubbub#-privacy">README</a>.</p></article>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>Install in 20 seconds</h2>
+    <ol class="steps">
+      <li><span><b>Download</b> <a href="https://github.com/karakayautku4/hubbub/releases/latest/download/Hubbub.dmg">Hubbub.dmg</a> and open it.</span></li>
+      <li><span><b>Drag</b> Hubbub to Applications.</span></li>
+      <li><span><b>Open</b> it. A small icon appears in the menu bar; press <kbd>⌥⌘C</kbd>.</span></li>
+    </ol>
+    <p class="sub">Prefer Homebrew? <code>brew tap karakayautku4/hubbub &amp;&amp; brew install --cask hubbub</code>.</p>
+  </section>
+
+  <section id="faq" class="dark">
+    <h2>FAQ</h2>
+    <div class="faq">
+      <details><summary>Does it send my code or prompts anywhere?</summary><p>No. Hubbub only reads local session logs and shows tool names, timestamps and token counts.</p></details>
+      <details><summary>Do I need a GitHub token?</summary><p>Only for the Copilot quota bar (via <code>gh auth login</code>). Everything else works without it.</p></details>
+      <details><summary>Which macOS versions are supported?</summary><p>macOS 14 (Sonoma) or later, on Apple silicon and Intel.</p></details>
+      <details><summary>Can I add my own theme or provider?</summary><p>Yes. See the <a href="https://github.com/karakayautku4/hubbub/blob/main/docs/CREATING_THEMES.md">theme guide</a> and <a href="https://github.com/karakayautku4/hubbub/blob/main/CONTRIBUTING.md">contributing</a>.</p></details>
+      <details><summary>Is it affiliated with GitHub, Anthropic, OpenAI…?</summary><p>No. Hubbub is an independent project. Names and logos belong to their owners.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <img src="images/icon.png" alt="" width="40" height="40">
+  <p>Hubbub is free and open source (MIT). Unofficial: not affiliated with or endorsed by GitHub, Microsoft, Anthropic, OpenAI, Google, Cursor or xAI.</p>
+  <p><a href="https://github.com/karakayautku4/hubbub">GitHub</a> · <a href="https://github.com/karakayautku4/hubbub/releases">Releases</a> · <a href="https://github.com/karakayautku4/hubbub/issues">Issues</a> · <a href="https://github.com/karakayautku4/hubbub/blob/main/SECURITY.md">Security</a></p>
+  <p><a href="https://karakayautku4.dev">karakayautku4</a></p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

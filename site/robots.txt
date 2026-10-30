@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://karakayautku4.github.io/hubbub/sitemap.xml
