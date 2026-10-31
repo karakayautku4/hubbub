@@ -41,9 +41,24 @@ struct SubAgent: Identifiable, Equatable {
     var failures = 0
     var costCredits: Double = 0
     var waitingApproval = false
+    /// Model requests and tokens (in + out) this sub-agent has used. Premium credits are billed to the user's
+    /// prompts, so these are the numbers that expose a runaway sub-agent.
+    var requests = 0
+    var tokens = 0
+    var finishedAt: Date? = nil
 
     var contextFraction: Double { contextLimit > 0 ? min(1, Double(contextTokens) / Double(contextLimit)) : 0 }
     var successRate: Double { toolCalls > 0 ? 1 - Double(failures) / Double(toolCalls) : 1 }
+}
+
+enum UsageCost {
+    /// Premium credits of one `session.usage_record`. Newer Copilot logs put `cost: 1` on every API call, including
+    /// agent- and sub-agent-initiated ones, which are not billed as premium requests. Only user-initiated calls count;
+    /// older logs have no `initiator` and keep their per-record cost.
+    static func credits(_ usage: [String: Any]) -> Double {
+        if let who = usage["initiator"] as? String, who != "user" { return 0 }
+        return (usage["cost"] as? NSNumber)?.doubleValue ?? 0
+    }
 }
 
 struct SessionInfo: Identifiable, Equatable {
@@ -55,6 +70,7 @@ struct SessionInfo: Identifiable, Equatable {
     var state: SessionState
     var currentTool: String?
     var subagents: [SubAgent]
+    var finishedSubagents: [SubAgent] = []
     var inputTokens: Int
     var outputTokens: Int
     var toolCalls: Int

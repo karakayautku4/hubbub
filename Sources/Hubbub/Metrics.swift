@@ -222,7 +222,7 @@ final class MetricsScanner: @unchecked Sendable {
             }
             fm.calls += 1
         case "session.usage_record":
-            let c = (d["usage"] as? [String: Any])?["cost"] as? Double ?? 0
+            let c = UsageCost.credits(d["usage"] as? [String: Any] ?? [:])
             fm.cost += c
             fm.days[day, default: [:]][actor, default: ActorAgg()].cost += c
         default: break

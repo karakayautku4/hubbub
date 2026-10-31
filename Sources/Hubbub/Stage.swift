@@ -247,6 +247,7 @@ final class Stage: ObservableObject {
         case .wizard: Stage.wizardLighting()
         case .galactic: Stage.galacticLighting()
         case .fellowship: Stage.fellowshipLighting()
+        case .office: Stage.officeLighting()
         }
         if let p = custom?.palette {
             bg = custom?.color(p.background) ?? bg
@@ -514,6 +515,7 @@ final class Stage: ObservableObject {
         case .wizard: wizardMotion(kind)
         case .galactic: galacticMotion(kind)
         case .fellowship: fellowshipMotion(kind)
+        case .office: officeMotion(kind)
         }
     }
 

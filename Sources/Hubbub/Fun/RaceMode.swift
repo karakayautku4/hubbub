@@ -249,6 +249,7 @@ final class RaceOverlay {
         case .impostor: Motif(runner: .bean, obstacle: .vent, track: 0x4a5160, line: 0xffd23f)
         case .wizard: Motif(runner: .wizard, obstacle: .books, track: 0x4b3a6b, line: 0xd9b8ff, glow: true)
         case .galactic: Motif(runner: .robot, obstacle: .gate, track: 0x1a2438, line: 0x4cc9ff, glow: true)
+        case .office: Motif(runner: .human, obstacle: .cone, track: 0x6b7280, line: 0xe5e7eb)
         case .fellowship: Motif(runner: .hooded, obstacle: .cairn, track: 0x8a7650, line: 0xe9dfc0)
         default: Motif(runner: .robot, obstacle: .crater, track: 0x3a4466, line: 0x5ad1ff, glow: true)
         }

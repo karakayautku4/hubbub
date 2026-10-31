@@ -62,6 +62,7 @@ final class SoundCenter {
         case (.wizard, _): return wizardSynth(kind)
         case (.galactic, _): return galacticSynth(kind)
         case (.fellowship, _): return fellowshipSynth(kind)
+        case (.office, _): return officeSynth(kind)
         default: return nil
         }
     }

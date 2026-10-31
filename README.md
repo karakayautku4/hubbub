@@ -43,9 +43,9 @@ Each session is a stage; the main agent is the lead (Commander, Farmer, Head Che
 </details>
 
 <details open>
-<summary><b>🎭 9 themes</b></summary>
+<summary><b>🎭 10 themes</b></summary>
 
-Space Station, Restaurant Kitchen, Prison, Football Match (fictional clubs), Sheep Farm, Sneaky Ship, Spell Academy, Galactic Fleet and Hillside Quest. All procedural SceneKit art; see the [gallery](#-themes). Community themes are a JSON file away ([docs/THEMES.md](docs/THEMES.md)).
+Software Office (default), Space Station, Restaurant Kitchen, Prison, Football Match (fictional clubs), Sheep Farm, Sneaky Ship, Spell Academy, Galactic Fleet and Hillside Quest. All procedural SceneKit art; see the [gallery](#-themes). Community themes are a JSON file away ([docs/THEMES.md](docs/THEMES.md)).
 </details>
 
 <details>
@@ -81,7 +81,7 @@ A mascot per theme, levels, XP, badges and cosmetics. Optional surprise guests, 
 <details>
 <summary><b>🎃 Halloween mode</b></summary>
 
-Pumpkins, ghosts and bats over every theme, plus cobwebs and a spider in the app UI. Automatic Oct 24 – Nov 1, or force On/Off in Settings → Appearance ([docs/HALLOWEEN.md](docs/HALLOWEEN.md)).
+Pumpkins, ghosts and bats over every theme, plus cobwebs and a spider in the app UI. Off by default: set Auto (Oct 24 – Nov 1) or On in Settings → Appearance ([docs/HALLOWEEN.md](docs/HALLOWEEN.md)).
 </details>
 
 <details>
@@ -152,6 +152,9 @@ Log formats of these tools are not guaranteed stable; an update to a CLI can bre
 Click a theme to expand an animated preview.
 
 <table>
+<tr>
+<td align="center" colspan="3"><img src="docs/images/themes/office.jpg" width="420"><br><b>Software Office</b> (default)</td>
+</tr>
 <tr>
 <td align="center"><a href="#t-space"><img src="docs/images/themes/space.jpg" width="260"></a><br><b>Space Station</b></td>
 <td align="center"><a href="#t-kitchen"><img src="docs/images/themes/kitchen.jpg" width="260"></a><br><b>Kitchen</b></td>

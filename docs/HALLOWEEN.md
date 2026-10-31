@@ -2,7 +2,7 @@
 
 A seasonal overlay that works on top of every theme, in the 3D scene and in the app frame.
 
-**Setting:** Settings → Appearance → Scene → *Halloween mode*: Auto (default, Oct 24 – Nov 1 by your calendar), On, or Off. Stored in `UserDefaults` as `halloweenMode` (`auto|on|off`).
+**Setting:** Settings → Appearance → Scene → *Halloween mode*: Off (default), Auto (Oct 24 – Nov 1 by your calendar) or On. Stored in `UserDefaults` as `halloweenMode` (`auto|on|off`).
 
 **Debug:** `HUBBUB_HALLOWEEN=1` forces it on, `=0` forces it off, beating the setting. `HUBBUB_HALLOWEEN_DEBUG=boo,bat` triggers the BOO! gag and a bat flight within a few seconds. Example: `HUBBUB_HALLOWEEN=1 Hubbub --fxshot space out.png 4`.
 

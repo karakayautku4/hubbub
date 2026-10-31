@@ -129,20 +129,12 @@ struct SessionDetailView: View {
                             .buttonStyle(.borderless).help("Copy error").accessibilityLabel("Copy error")
                     }
                 }
-                if !s.subagents.isEmpty {
+                if !s.subagents.isEmpty || !s.finishedSubagents.isEmpty {
                     Text("Sub-agents").font(HubFont.caption.bold()).foregroundStyle(.secondary)
-                    ForEach(s.subagents) { a in
-                        HStack(spacing: Space.xs) {
-                            Circle().fill(a.busy ? Color.green : Color.secondary.opacity(0.5)).frame(width: 6, height: 6).accessibilityHidden(true)
-                            Text(a.displayName).font(HubFont.caption).lineLimit(1)
-                            Spacer(minLength: Space.xs)
-                            Text([a.contextLimit > 0 ? Fmt.percent(a.contextFraction) : nil, a.costCredits > 0 ? Fmt.creditsShort(a.costCredits) : nil]
-                                .compactMap { $0 }.joined(separator: " · "))
-                                .font(HubFont.captionDigits).foregroundStyle(.secondary).lineLimit(1)
-                        }
-                        .accessibilityElement(children: .combine)
-                        .help("\(a.displayName) · \(a.model)")
-                    }
+                    let all = s.subagents + s.finishedSubagents
+                    let heaviest = all.max { $0.tokens < $1.tokens }?.id
+                    ForEach(s.subagents) { a in subRow(a, heaviest: all.count > 1 && heaviest == a.id) }
+                    ForEach(s.finishedSubagents) { a in subRow(a, heaviest: all.count > 1 && heaviest == a.id) }
                 }
                 Text("Recent tool calls").font(HubFont.caption.bold()).foregroundStyle(.secondary)
                 if s.recentCalls.isEmpty { Text("Nothing yet").font(HubFont.caption).foregroundStyle(.secondary) }
@@ -161,6 +153,22 @@ struct SessionDetailView: View {
     }
 
     // MARK: helpers
+
+    private func subRow(_ a: SubAgent, heaviest: Bool) -> some View {
+        let done = a.finishedAt != nil
+        let usage = [a.requests > 0 ? "\(a.requests) req" : nil, a.tokens > 0 ? Fmt.tokens(a.tokens) + " tok" : nil,
+                     !done && a.contextLimit > 0 ? Fmt.percent(a.contextFraction) : nil, a.costCredits > 0 ? Fmt.creditsShort(a.costCredits) : nil]
+            .compactMap { $0 }.joined(separator: " · ")
+        return HStack(spacing: Space.xs) {
+            Circle().fill(done ? Color.secondary.opacity(0.25) : (a.busy ? Color.green : Color.secondary.opacity(0.5))).frame(width: 6, height: 6).accessibilityHidden(true)
+            Text(a.displayName).font(HubFont.caption).lineLimit(1).foregroundStyle(done ? .secondary : .primary)
+            if heaviest { Image(systemName: "flame.fill").font(HubFont.caption).foregroundStyle(.orange).help("Heaviest sub-agent in this session") }
+            Spacer(minLength: Space.xs)
+            Text(usage).font(HubFont.captionDigits).foregroundStyle(.secondary).lineLimit(1)
+        }
+        .accessibilityElement(children: .combine)
+        .help("\(a.displayName) · \(a.model)\(done ? " · finished" : "")")
+    }
 
     private func flash(_ msg: String) {
         copied = msg

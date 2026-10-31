@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Halloween frame for the app UI: corner cobwebs, a spider, bats, a glowing jack-o'-lantern, a skull and an orange tint. Decorative only.
 struct HalloweenChrome: ViewModifier {
-    @AppStorage(Halloween.key) private var modeRaw = HalloweenMode.auto.rawValue
+    @AppStorage(Halloween.key) private var modeRaw = HalloweenMode.off.rawValue
     @Environment(\.colorScheme) private var scheme
 
     private var on: Bool { Halloween.isActive(mode: Halloween.mode(from: modeRaw)) }
@@ -159,7 +159,7 @@ struct SkullShape: View {
 
 /// Settings > Appearance: one compact row.
 struct HalloweenSettingsRow: View {
-    @AppStorage(Halloween.key) private var modeRaw = HalloweenMode.auto.rawValue
+    @AppStorage(Halloween.key) private var modeRaw = HalloweenMode.off.rawValue
 
     var body: some View {
         HStack(alignment: .center) {

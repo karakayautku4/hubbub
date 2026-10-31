@@ -7,11 +7,12 @@ struct Station {
 }
 
 enum Theme: String, CaseIterable, Identifiable {
+    case office
     case space, kitchen, prison, football, farm
     case impostor, wizard, galactic, fellowship
     var id: String { rawValue }
 
-    static let defaultTheme: Theme = .space
+    static let defaultTheme: Theme = .office
 
     /// Maps a persisted raw value to a theme, falling back to the default for unknown or unavailable themes.
     static func resolve(_ raw: String) -> Theme { Theme(rawValue: raw) ?? defaultTheme }
@@ -30,6 +31,7 @@ enum Theme: String, CaseIterable, Identifiable {
         case .wizard: "Spell Academy"
         case .galactic: "Galactic Fleet"
         case .fellowship: "Hillside Quest"
+        case .office: "Software Office"
         }
     }
     var icon: String {
@@ -43,6 +45,7 @@ enum Theme: String, CaseIterable, Identifiable {
             case .wizard: "🪄"
             case .galactic: "🌌"
             case .fellowship: "🗡️"
+            case .office: "🏢"
         }
     }
     var blurb: String {
@@ -55,6 +58,7 @@ enum Theme: String, CaseIterable, Identifiable {
         case .impostor: "Each session is a spaceship. The captain keeps a bean-shaped crew busy with tasks; a failed task means someone is acting very, very sus."
         case .wizard: "Each session is a castle school. The headwizard teaches apprentices spells and potions; a failed task makes a spell backfire."
         case .galactic: "Each session is a starship. The admiral leads a squadron of cadets and helper bots; a failed task sets off the red alert."
+        case .office: "Each session is a software company. The office manager keeps a floor of developers busy in their cubicles; a failed task means production is down and everyone panics."
         case .fellowship: "Each session is a quest. The wise guide leads a band of adventurers across the realm; a failed task means chaos: a giant eagle, burnt stew or a runaway lucky charm."
         }
     }
@@ -70,6 +74,7 @@ enum Theme: String, CaseIterable, Identifiable {
             case .wizard: "Headwizard"
             case .galactic: "Admiral"
             case .fellowship: "Wise Guide"
+            case .office: "Office Manager"
         }
     }
     var subRole: String {
@@ -84,6 +89,7 @@ enum Theme: String, CaseIterable, Identifiable {
             case .wizard: "apprentice"
             case .galactic: "cadet"
             case .fellowship: "adventurer"
+            case .office: "developer"
         }
     }
     var quotaLabel: String {
@@ -98,6 +104,7 @@ enum Theme: String, CaseIterable, Identifiable {
             case .wizard: "Mana Potion"
             case .galactic: "Hyperdrive Fuel"
             case .fellowship: "Trail Rations"
+            case .office: "Coffee Budget"
         }
     }
     var roomNoun: String {
@@ -112,6 +119,7 @@ enum Theme: String, CaseIterable, Identifiable {
             case .wizard: "Castle"
             case .galactic: "Starship"
             case .fellowship: "Quest"
+            case .office: "Office"
         }
     }
     var emptyText: String {
@@ -126,6 +134,7 @@ enum Theme: String, CaseIterable, Identifiable {
         case .wizard: "The castle is fast asleep…"
         case .galactic: "The fleet is on standby…"
         case .fellowship: "The road is empty…"
+        case .office: "The office is empty…"
         }
     }
     var idleText: String {
@@ -140,6 +149,7 @@ enum Theme: String, CaseIterable, Identifiable {
         case .wizard: "💭 Waiting for the bell"
         case .galactic: "💭 Awaiting fleet orders"
         case .fellowship: "💭 Resting at the inn"
+        case .office: "💭 Waiting at the water cooler"
         }
     }
     var thinkingText: String {
@@ -154,6 +164,7 @@ enum Theme: String, CaseIterable, Identifiable {
         case .wizard: "🧠 Consulting the spellbook…"
         case .galactic: "🧠 Calculating the jump…"
         case .fellowship: "🧠 Studying the map…"
+        case .office: "🧠 Reading the ticket…"
         }
     }
     var packet: Color {
@@ -167,6 +178,7 @@ enum Theme: String, CaseIterable, Identifiable {
         case .wizard: Color(red: 0.85, green: 0.7, blue: 1.0)
         case .galactic: Color(red: 0.5, green: 1.0, blue: 0.55)
         case .fellowship: Color(red: 1.0, green: 0.85, blue: 0.45)
+        case .office: Color(red: 0.55, green: 0.85, blue: 1.0)
         }
     }
     var previewColors: [Color] {
@@ -180,6 +192,7 @@ enum Theme: String, CaseIterable, Identifiable {
         case .wizard: [Color(red: 0.16, green: 0.1, blue: 0.3), Color(red: 0.95, green: 0.75, blue: 0.2)]
         case .galactic: [Color(red: 0.02, green: 0.03, blue: 0.08), Color(red: 0.3, green: 0.85, blue: 0.4)]
         case .fellowship: [Color(red: 0.25, green: 0.4, blue: 0.2), Color(red: 0.9, green: 0.75, blue: 0.4)]
+        case .office: [Color(red: 0.82, green: 0.86, blue: 0.9), Color(red: 0.2, green: 0.45, blue: 0.85)]
         }
     }
     var labelBackdrop: Color {
@@ -243,6 +256,11 @@ enum Theme: String, CaseIterable, Identifiable {
                     Station(pos: CGPoint(x: 128, y: 152), emoji: "🤖", label: "Bot workshop"),
                     Station(pos: CGPoint(x: 206, y: 124), emoji: "🚀", label: "Hyperdrive tuning"),
                     Station(pos: CGPoint(x: 268, y: 152), emoji: "📡", label: "Holo-comms")]
+        case .office:
+            return [Station(pos: CGPoint(x: 60, y: 124), emoji: "📚", label: "Reading the docs"),
+                    Station(pos: CGPoint(x: 128, y: 152), emoji: "⌨️", label: "Pair programming"),
+                    Station(pos: CGPoint(x: 206, y: 124), emoji: "🧪", label: "CI server rack"),
+                    Station(pos: CGPoint(x: 268, y: 152), emoji: "📋", label: "Stand-up board")]
         case .fellowship:
             return [Station(pos: CGPoint(x: 60, y: 124), emoji: "🗺️", label: "Reading the map"),
                     Station(pos: CGPoint(x: 128, y: 152), emoji: "⚒️", label: "Blacksmith forge"),
@@ -278,7 +296,7 @@ enum Theme: String, CaseIterable, Identifiable {
         case .prison: CGPoint(x: 176, y: 112)
         case .football: CGPoint(x: 104, y: 112)
         case .farm: CGPoint(x: 110, y: 114)
-        case .impostor, .wizard, .galactic, .fellowship: CGPoint(x: 100, y: 112)
+        case .impostor, .wizard, .galactic, .fellowship, .office: CGPoint(x: 100, y: 112)
         }
     }
 
@@ -328,6 +346,7 @@ enum Theme: String, CaseIterable, Identifiable {
         case .wizard: "Ten points! ✨"
         case .galactic: "Mission accomplished! 🌠"
         case .fellowship: "Quest complete! 🏔️"
+        case .office: "Shipped to prod! 🚢"
         }
     }
     var panicLine: String {
@@ -342,6 +361,7 @@ enum Theme: String, CaseIterable, Identifiable {
         case .wizard: "Spell backfired! 💫"
         case .galactic: "Red alert! 🚨"
         case .fellowship: "Giant eagle! 🦅"
+        case .office: "Prod is down! 🚨"
         }
     }
     var deskLine: String {
@@ -360,6 +380,7 @@ enum Theme: String, CaseIterable, Identifiable {
         case .wizard: "Need a cauldron cocoa…"
         case .galactic: "Need some space juice…"
         case .fellowship: "Need a hearty snack…"
+        case .office: "Need a coffee refill…"
         default: "Need a coffee…"
         }
     }
@@ -391,6 +412,9 @@ enum Theme: String, CaseIterable, Identifiable {
         case .galactic:
             [["Sector looks clear", "Strange signal…", "Reading the sensors"], ["Beep boop", "Bot needs oil", "Bolting a panel"],
              ["Hyperdrive at 99%", "Jump in 3, 2, 1", "Charging the engines"], ["Incoming hologram", "Patch me through", "Signal is fuzzy"]][kind]
+        case .office:
+            [["Reading the docs", "RTFM, apparently", "Where's the README?"], ["Writing tests later", "Refactoring…", "One more commit"],
+             ["CI is running", "Green build?", "Works on my machine"], ["Stand-up in 5", "Moving the ticket", "Let's take it offline"]][kind]
         case .fellowship:
             [["Which way is north?", "The map says mountain", "Are we lost?"], ["Clang clang!", "A fine axe", "Hot iron!"],
              ["Stew is ready", "More salt?", "Smells like dinner"], ["Light the beacon!", "This way… or that?", "Signpost says \"nope\""]][kind]
@@ -442,6 +466,11 @@ enum Theme: String, CaseIterable, Identifiable {
                      ("view", "🔭 Scanning the sector"), ("grep", "🛰️ Sweeping for signals"), ("glob", "🛰️ Sweeping for signals"),
                      ("task", "📣 Dispatching a cadet"), ("fetch", "📡 Hailing the outpost"),
                      ("ask_user", "💬 Awaiting the admiral")]
+        case .office:
+            table = [("bash", "🧪 Running the CI pipeline"), ("edit", "⌨️ Writing code"), ("create", "🆕 Starting a new module"),
+                     ("view", "📖 Reading the docs"), ("grep", "🔎 Searching the codebase"), ("glob", "🔎 Searching the codebase"),
+                     ("task", "📋 Assigning a ticket"), ("fetch", "🌐 Checking Stack Overflow"),
+                     ("ask_user", "💬 Waiting on the product owner")]
         case .fellowship:
             table = [("bash", "🔥 Cooking over the campfire"), ("edit", "⚒️ Hammering at the forge"), ("create", "🏕️ Setting up camp"),
                      ("view", "🗺️ Studying the map"), ("grep", "🏹 Tracking the trail"), ("glob", "🏹 Tracking the trail"),

@@ -70,12 +70,12 @@ final class Notifier {
     }
 
     /// Attention event (approval / stuck / failed) for a session; throttled to one per session and kind per minute.
-    func attention(_ kind: String, key: String, session: SessionInfo, title: String, body: String) {
+    func attention(_ kind: String, key: String, session: SessionInfo, title: String, body: String, reminder: Bool = false) {
         guard NotifyKey.isOn(key), coalescer.allow("\(kind)-\(session.id)") else { return }
         if kind == "approval", let q = ReplyCenter.shared.question(for: session), q.source == .log {
             let r = ReplyNotifications.categoryForLogQuestion(session: session, question: q)
             let text = [q.title, q.detail].compactMap { $0 }.joined(separator: "\n")
-            post(session.name, String(text.prefix(300)), sessionID: session.id, id: "\(kind)-\(session.id)", category: r.category, info: r.info)
+            post(reminder ? title : session.name, String((reminder ? "\(session.name): \(text)" : text).prefix(300)), sessionID: session.id, id: "\(kind)-\(session.id)", category: r.category, info: r.info)
             return
         }
         post(title, body, sessionID: session.id, id: "\(kind)-\(session.id)")

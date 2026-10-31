@@ -35,6 +35,7 @@ final class Mascot {
         case .wizard: .owl
         case .galactic: .droid
         case .fellowship: .pony
+        case .office: .cat
         default: .robot
         }
     }

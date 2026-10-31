@@ -19,6 +19,7 @@ enum Environments {
         case .wizard: wizard(root)
         case .galactic: galactic(root)
         case .fellowship: fellowship(root)
+        case .office: office(root)
         }
         for (i, st) in theme.stations.enumerated() {
             let n = root.group("station\(i)", wx(st.pos.x), 0, wz(st.pos.y) - 0.95)
@@ -357,6 +358,7 @@ enum Environments {
         case .wizard: wizardStation(kind, n)
         case .galactic: galacticStation(kind, n)
         case .fellowship: fellowshipStation(kind, n)
+        case .office: officeStation(kind, n)
         case .space:
             let tint: UInt32 = 0x3fd0ff
             let bodyM = Gfx.mat(0x3a4558, r: 0.4, m: 0.5)

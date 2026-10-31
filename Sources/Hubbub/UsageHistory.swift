@@ -201,7 +201,7 @@ final class UsageHistory: ObservableObject {
                 autoreleasepool {
                     guard let obj = JSONL.object(p), let u = (obj["data"] as? [String: Any])?["usage"] as? [String: Any] else { return }
                     let model = u["model"] as? String ?? "unknown"
-                    let cost = (u["cost"] as? NSNumber)?.doubleValue ?? 0
+                    let cost = UsageCost.credits(u)
                     var m = sc.models[model] ?? [0, 0, 0]
                     m[0] += cost
                     m[1] += (u["inputTokens"] as? NSNumber)?.doubleValue ?? 0

@@ -5,7 +5,7 @@ Themes are Swift code; there is no asset pipeline (scenes are built from SceneKi
 
 ## Existing themes
 
-`Space Station`, `Restaurant Kitchen`, `Prison`, `Football Match` (fictional clubs), `Sheep Farm`, `Sneaky Ship`, `Spell Academy`, `Galactic Fleet`, `Hillside Quest`.
+`Software Office` (default), `Space Station`, `Restaurant Kitchen`, `Prison`, `Football Match` (fictional clubs), `Sheep Farm`, `Sneaky Ship`, `Spell Academy`, `Galactic Fleet`, `Hillside Quest`.
 
 Theme content must be original: no real clubs, brands, characters, catchphrases or places from other works. See [IP_NOTES.md](IP_NOTES.md).
 

@@ -138,6 +138,9 @@ enum RaceText {
         case .galactic: Lines(start: "Hyperlane heat! Engage the sprint thrusters!",
                               stumble: ["{n} clipped an energy gate.", "{n} lost a bolt but kept the attitude."],
                               win: ["{n} wins at near-light speed!", "{n} beats the clock and the nav computer."])
+        case .office: Lines(start: "The Great Corridor Dash! Free pizza in the kitchen.",
+                            stumble: ["{n} tripped over a monitor cable.", "{n} got caught in a surprise meeting."],
+                            win: ["{n} wins and gets the last slice.", "{n} reaches the pizza first."])
         case .fellowship: Lines(start: "The Great Meadow Run! A hot pie is the prize.",
                                 stumble: ["{n} stubbed a toe on a cairn.", "{n} stopped to smell a very nice flower."],
                                 win: ["{n} wins. A sit-down is now mandatory.", "{n} arrives first, with snacks."])
@@ -163,6 +166,7 @@ enum RaceText {
         case .wizard: "BROOM HURDLES"
         case .galactic: "HYPERLANE HEAT"
         case .fellowship: "MEADOW RUN"
+        case .office: "CORRIDOR DASH"
         default: "THE BIG RACE"
         }
     }
@@ -300,6 +304,7 @@ enum GuestPlan {
         case .wizard: "Mind if I borrow a spellbook?"
         case .galactic: "Your fleet could use more cup holders."
         case .fellowship: "Any chance of a second helping?"
+        case .office: "Is that a standing desk? Fancy."
         default: "What a lovely place to work."
         }
     }

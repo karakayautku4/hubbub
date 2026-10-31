@@ -313,7 +313,26 @@ final class SessionMonitor: ObservableObject {
         var pendingQuestions: [String: PendingQuestion] = [:]
         var clock = ActiveClock()
         var dayUsage: [String: DayUsage] = [:]
+        var subUsage: [String: (requests: Int, tokens: Int)] = [:]
+        var finishedSubs: [String: SubAgent] = [:]
         let cal = Calendar.current
+
+        func snapshot(_ sub: SubAgent) -> SubAgent {
+            var s = sub
+            s.tool = subTool[sub.id]
+            s.busy = !(subRunning[sub.id]?.isEmpty ?? true)
+            s.actions = subActions[sub.id] ?? []
+            let st = subStats[sub.id]
+            s.contextTokens = st?.ctx ?? 0
+            s.contextLimit = (st?.limit ?? 0) > 0 ? st!.limit : ModelInfo.contextLimit(sub.model)
+            s.toolCalls = st?.calls ?? 0
+            s.failures = st?.fails ?? 0
+            s.costCredits = st?.cost ?? 0
+            s.waitingApproval = pendingApprovals.values.contains(sub.id)
+            s.requests = subUsage[sub.id]?.requests ?? 0
+            s.tokens = subUsage[sub.id]?.tokens ?? 0
+            return s
+        }
 
         func handle(_ obj: [String: Any], _ type: String) {
             let data = obj["data"] as? [String: Any] ?? [:]
@@ -397,14 +416,21 @@ final class SessionMonitor: ObservableObject {
                         startedAt: ts ?? Date())
                 }
             case "subagent.completed", "subagent.failed":
-                if let cid = data["toolCallId"] as? String { subs[cid] = nil }
+                if let cid = data["toolCallId"] as? String {
+                    if let sub = subs[cid] {
+                        var done = snapshot(sub)
+                        done.busy = false; done.waitingApproval = false; done.finishedAt = ts ?? Date()
+                        finishedSubs[cid] = done
+                    }
+                    subs[cid] = nil
+                }
             case "session.usage_record":
                 if let u = data["usage"] as? [String: Any] {
                     tin += u["inputTokens"] as? Int ?? 0
                     tout += u["outputTokens"] as? Int ?? 0
                     let inTok = u["inputTokens"] as? Int ?? 0
                     let lim = u["maxPromptTokens"] as? Int ?? 0
-                    let c = (u["cost"] as? Double) ?? Double(u["cost"] as? Int ?? 0)
+                    let c = UsageCost.credits(u)
                     let dayKey = DayKey.string(ts ?? last, calendar: cal)
                     var du = dayUsage[dayKey] ?? DayUsage()
                     du.input += inTok; du.output += u["outputTokens"] as? Int ?? 0
@@ -414,6 +440,8 @@ final class SessionMonitor: ObservableObject {
                         subStats[owner, default: (0, 0, 0, 0, 0)].ctx = inTok
                         if lim > 0 { subStats[owner]!.limit = lim }
                         subStats[owner]!.cost += c
+                        subUsage[owner, default: (0, 0)].requests += 1
+                        subUsage[owner]!.tokens += inTok + (u["outputTokens"] as? Int ?? 0)
                     } else if obj["agentId"] == nil {
                         ctxTokens = inTok
                         if lim > 0 { ctxLimit = lim }
@@ -468,21 +496,9 @@ final class SessionMonitor: ObservableObject {
         // Drop stale unfinished work (aborted/crashed runs never log a completion)
         runningTools = runningTools.filter { now.timeIntervalSince($0.value.1) < 600 }
         let activeSubs = subs.values.filter { now.timeIntervalSince($0.startedAt) < 2 * 3600 }
-            .map { sub -> SubAgent in
-                var s = sub
-                s.tool = subTool[sub.id]
-                s.busy = !(subRunning[sub.id]?.isEmpty ?? true)
-                s.actions = subActions[sub.id] ?? []
-                let st = subStats[sub.id]
-                s.contextTokens = st?.ctx ?? 0
-                s.contextLimit = (st?.limit ?? 0) > 0 ? st!.limit : ModelInfo.contextLimit(sub.model)
-                s.toolCalls = st?.calls ?? 0
-                s.failures = st?.fails ?? 0
-                s.costCredits = st?.cost ?? 0
-                s.waitingApproval = pendingApprovals.values.contains(sub.id)
-                return s
-            }
+            .map(snapshot)
             .sorted { $0.startedAt < $1.startedAt }
+        let doneSubs = finishedSubs.values.sorted { $0.startedAt > $1.startedAt }.prefix(12)
         let inUse = isInUse(dir)
 
         let state: SessionState
@@ -495,6 +511,7 @@ final class SessionMonitor: ObservableObject {
         var info = SessionInfo(
             id: id, name: name, cwd: cwd, model: model, lastEvent: last, state: state,
             currentTool: state == .working ? tool : nil, subagents: state == .offline ? [] : activeSubs,
+            finishedSubagents: state == .offline ? [] : Array(doneSubs),
             inputTokens: tin, outputTokens: tout, toolCalls: toolCalls,
             actions: captainActions, lastFailureAt: lastFail,
             branch: branch, startedAt: created, lastError: lastError, recentCalls: calls,

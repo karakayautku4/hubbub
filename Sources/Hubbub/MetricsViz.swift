@@ -46,6 +46,7 @@ enum MetricsFmt {
         case .wizard: wizardMedal
         case .galactic: galacticMedal
         case .fellowship: fellowshipMedal
+        case .office: officeMedal
         }
     }
 
@@ -189,6 +190,7 @@ extension Rig {
         case .wizard: wizardGauge(figure, metal: metal)
         case .galactic: galacticGauge(figure, metal: metal)
         case .fellowship: fellowshipGauge(figure, metal: metal)
+        case .office: officeGauge(figure, metal: metal)
         default: break
         }
         let beacon = figure.group("beacon", 0.55, labelY - 0.7, 0)
@@ -210,6 +212,7 @@ extension Rig {
         case .wizard: wizardBeacon(beacon, metal: metal)
         case .galactic: galacticBeacon(beacon, metal: metal)
         case .fellowship: fellowshipBeacon(beacon, metal: metal)
+        case .office: officeBeacon(beacon, metal: metal)
         }
         beacon.isHidden = true
         mv.beacon = beacon
@@ -358,6 +361,7 @@ final class RoomSign {
         case .wizard: img = Self.wizardAgeSign(age: age, days: days, minutes: min, jersey: jersey, txt: txt)
         case .galactic: img = Self.galacticAgeSign(age: age, days: days, minutes: min, jersey: jersey, txt: txt)
         case .fellowship: img = Self.fellowshipAgeSign(age: age, days: days, minutes: min, jersey: jersey, txt: txt)
+        case .office: img = Self.officeAgeSign(age: age, days: days, minutes: min, jersey: jersey, txt: txt)
         }
         }
         if let plane = node.geometry as? SCNPlane, let m = plane.firstMaterial {

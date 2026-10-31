@@ -33,7 +33,7 @@ enum Halloween {
         }
     }
 
-    static func mode(from raw: String?) -> HalloweenMode { raw.flatMap(HalloweenMode.init(rawValue:)) ?? .auto }
+    static func mode(from raw: String?) -> HalloweenMode { raw.flatMap(HalloweenMode.init(rawValue:)) ?? .off }
 
     static var storedMode: HalloweenMode { mode(from: UserDefaults.standard.string(forKey: key)) }
     static var isActiveNow: Bool { isActive(mode: storedMode) }

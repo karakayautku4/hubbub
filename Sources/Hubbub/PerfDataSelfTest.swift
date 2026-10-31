@@ -161,7 +161,7 @@ private func naiveUsage(root: URL) -> UsageHistory.Aggregate {
                   let obj = (try? JSONSerialization.jsonObject(with: line)) as? [String: Any],
                   let u = (obj["data"] as? [String: Any])?["usage"] as? [String: Any] else { continue }
             let model = u["model"] as? String ?? "unknown"
-            let cost = (u["cost"] as? NSNumber)?.doubleValue ?? 0
+            let cost = UsageCost.credits(u)
             var m = sc.models[model] ?? [0, 0, 0]
             m[0] += cost; m[1] += (u["inputTokens"] as? NSNumber)?.doubleValue ?? 0; m[2] += (u["outputTokens"] as? NSNumber)?.doubleValue ?? 0
             sc.models[model] = m

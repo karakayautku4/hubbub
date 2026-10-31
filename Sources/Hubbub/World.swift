@@ -287,6 +287,7 @@ final class RoomSim {
         case .wizard: wizardFailure(t: t)
         case .galactic: galacticFailure(t: t)
         case .fellowship: fellowshipFailure(t: t)
+        case .office: officeFailure(t: t)
         default: panicAll(t: t)
         }
         events.append(.failure)
@@ -304,6 +305,7 @@ final class RoomSim {
             case .wizard: wizardFailure(t: t)
             case .galactic: galacticFailure(t: t)
             case .fellowship: fellowshipFailure(t: t)
+            case .office: officeFailure(t: t)
             default: panicAll(t: t)
             }
             events.append(.failure)

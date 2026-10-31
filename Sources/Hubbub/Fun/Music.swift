@@ -37,6 +37,7 @@ enum MusicSynth {
         case .impostor: MusicSpec(style: .chip, bpm: 96, root: 50, scale: locrianish, progression: [0, 0, 1, 0, 0, 0, 4, 1], lead: .tri, bass: .square(0.5), density: 0.3, seed: 53)
         case .wizard: MusicSpec(style: .pad, bpm: 72, root: 52, scale: dorian, progression: [0, 3, 4, 0, 5, 3, 1, 0], lead: .pluck, density: 0.4, seed: 67)
         case .galactic: MusicSpec(style: .chip, bpm: 124, root: 57, scale: mixolydian, progression: [0, 6, 3, 4, 0, 6, 3, 4], lead: .saw, bass: .saw, drums: true, density: 0.6, seed: 71)
+        case .office: MusicSpec(style: .chip, bpm: 104, root: 48, scale: majorPent, progression: [0, 3, 4, 3, 0, 5, 4, 3], lead: .tri, bass: .square(0.4), density: 0.3, seed: 109)
         case .fellowship: MusicSpec(style: .pad, bpm: 62, root: 50, scale: minor, progression: [0, 5, 3, 4, 0, 5, 6, 4], lead: .sine, density: 0.3, seed: 83)
         default: MusicSpec(style: .pad, bpm: 64, root: 45, scale: minorPent, progression: [0, 3, 2, 4, 0, 3, 1, 2], lead: .pluck, density: 0.35, seed: 97)
         }

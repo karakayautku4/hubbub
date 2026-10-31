@@ -31,6 +31,17 @@ enum ProdFeaturesSelfTest {
         check("daily pace", abs((CostProjector.dailyPace(spent: 5, limit: 8, now: noon, calendar: cal) ?? 0) - 10) < 0.01)
         check("daily pace needs data", CostProjector.dailyPace(spent: 5, limit: 8, now: start.addingTimeInterval(1800), calendar: cal) == nil)
 
+        // Premium credits count only user-initiated calls; old logs without `initiator` keep their cost
+        check("cost: user call counts", UsageCost.credits(["initiator": "user", "cost": 1]) == 1)
+        check("cost: agent call ignored", UsageCost.credits(["initiator": "agent", "cost": 1]) == 0)
+        check("cost: sub-agent call ignored", UsageCost.credits(["initiator": "sub-agent", "cost": 1.0]) == 0)
+        check("cost: old log keeps multiplier", UsageCost.credits(["cost": 0.33]) == 0.33)
+        let asked = Date(timeIntervalSince1970: 1_000_000)
+        check("approval: no early reminder", !StuckDetector.reminderDue(asked: asked, reminders: 0, now: asked.addingTimeInterval(599)))
+        check("approval: first reminder", StuckDetector.reminderDue(asked: asked, reminders: 0, now: asked.addingTimeInterval(600)))
+        check("approval: second waits", !StuckDetector.reminderDue(asked: asked, reminders: 1, now: asked.addingTimeInterval(900)) && StuckDetector.reminderDue(asked: asked, reminders: 1, now: asked.addingTimeInterval(1200)))
+        check("approval: capped", !StuckDetector.reminderDue(asked: asked, reminders: StuckDetector.approvalMaxReminders, now: asked.addingTimeInterval(99_999)))
+
         // Search / filter
         let t0 = Date(timeIntervalSince1970: Date().timeIntervalSince1970.rounded(.down))
         var a = SessionRecord(id: "a", provider: "copilot", name: "Fix login bug", cwd: "/Users/x/webapp", model: "gpt-x", state: "working", tokens: 5000, credits: 3, lastEvent: t0)

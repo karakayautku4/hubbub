@@ -112,6 +112,7 @@ final class Rig {
         case .wizard: return wizardOutfit(captain: captain, v: v)
         case .galactic: return galacticOutfit(captain: captain, v: v)
         case .fellowship: return fellowshipOutfit(captain: captain, v: v)
+        case .office: return officeOutfit(captain: captain, v: v)
         }
     }
 
@@ -123,6 +124,7 @@ final class Rig {
         case .wizard: wizardAccessories(captain: captain, number: number, rig: rig, hair: hair, accM: accM, topM: topM)
         case .galactic: galacticAccessories(captain: captain, number: number, rig: rig, hair: hair, accM: accM, topM: topM)
         case .fellowship: fellowshipAccessories(captain: captain, number: number, rig: rig, hair: hair, accM: accM, topM: topM)
+        case .office: officeAccessories(captain: captain, number: number, rig: rig, hair: hair, accM: accM, topM: topM)
         case .football:
             hairCap()
             for leg in [rig.legL, rig.legR] {

@@ -370,7 +370,7 @@ enum HalloweenSelfTest {
         check(Halloween.isActive(mode: .off, date: day(6, 1), calendar: cal, env: [Halloween.envKey: "1"]), "env=1 forces on")
         check(!Halloween.isActive(mode: .on, date: day(10, 31), calendar: cal, env: [Halloween.envKey: "0"]), "env=0 forces off")
         check(Halloween.isActive(mode: .auto, date: day(10, 31), calendar: cal, env: [Halloween.envKey: "maybe"]), "junk env is ignored")
-        check(Halloween.mode(from: nil) == .auto && Halloween.mode(from: "bogus") == .auto && Halloween.mode(from: "on") == .on, "mode parsing defaults to auto")
+        check(Halloween.mode(from: nil) == .off && Halloween.mode(from: "bogus") == .off && Halloween.mode(from: "on") == .on, "mode parsing defaults to off")
 
         setenv(Halloween.envKey, "1", 1)
         let layer = HalloweenLayer()

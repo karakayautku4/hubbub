@@ -58,6 +58,7 @@ enum Jobs {
         case .wizard: list = wizardCatalog
         case .galactic: list = galacticCatalog
         case .fellowship: list = fellowshipCatalog
+        case .office: list = officeCatalog
         }
         let result = list.isEmpty ? spaceCatalog : list
         catalogCache[theme] = result
@@ -132,6 +133,7 @@ enum Jobs {
         case .wizard: (0x8d5cf6, 0x6b5a4a)
         case .galactic: (0x4fd1ff, 0x6a7286)
         case .fellowship: (0x5a9a3c, 0x7a5a38)
+        case .office: (0x3a7bd5, 0x8a94a3)
         }
     }
 
