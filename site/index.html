@@ -29,7 +29,7 @@
  {"@type":"Question","name":"What is Hubbub?","acceptedAnswer":{"@type":"Answer","text":"Hubbub is a free, open-source macOS menu bar app that turns your AI coding agent sessions (GitHub Copilot CLI, Claude Code, Codex, Gemini CLI, Cursor) into small interactive 3D scenes, showing who is working, stuck or waiting for approval, plus tokens, context fill and cost."}},
  {"@type":"Question","name":"Does Hubbub send my code or prompts anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Hubbub only reads local session logs read-only, has no telemetry, and never stores or sends message content."}},
  {"@type":"Question","name":"Which macOS versions does Hubbub support?","acceptedAnswer":{"@type":"Answer","text":"macOS 14 (Sonoma) or later, on Apple silicon and Intel. The download is signed with a Developer ID and notarized by Apple."}},
- {"@type":"Question","name":"How do I install Hubbub?","acceptedAnswer":{"@type":"Answer","text":"Download Hubbub.dmg from GitHub Releases, drag Hubbub to Applications, or run: brew tap karakayautku4/hubbub && brew install --cask hubbub."}}]}
+ {"@type":"Question","name":"How do I install Hubbub?","acceptedAnswer":{"@type":"Answer","text":"Download Hubbub.dmg from GitHub Releases, drag Hubbub to Applications, or run: brew tap karakayautku4/hubbub && brew trust karakayautku4/hubbub && brew install --cask hubbub."}}]}
 ]}
 </script>
 <link rel="icon" href="images/icon.png">
@@ -119,7 +119,7 @@
       <li><span><b>Drag</b> Hubbub to Applications.</span></li>
       <li><span><b>Open</b> it. A small icon appears in the menu bar; press <kbd>⌥⌘C</kbd>.</span></li>
     </ol>
-    <p class="sub">Prefer Homebrew? <code>brew tap karakayautku4/hubbub &amp;&amp; brew install --cask hubbub</code>.</p>
+    <p class="sub">Prefer Homebrew? <code>brew tap karakayautku4/hubbub &amp;&amp; brew trust karakayautku4/hubbub &amp;&amp; brew install --cask hubbub</code>.</p>
   </section>
 
   <section id="faq" class="dark">

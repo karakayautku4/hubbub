@@ -107,7 +107,7 @@ Universal app: Apple silicon and Intel. Free, no account needed.
 > Hubbub is signed with an Apple Developer ID and notarized, so it opens with no warning. If macOS still complains
 > (e.g. a build you compiled yourself), go to **System Settings → Privacy & Security → Open Anyway**.
 
-Requires macOS 14 (Sonoma) or later. Prefer Homebrew? `brew tap karakayautku4/hubbub && brew install --cask hubbub` (see [packaging/homebrew](packaging/homebrew/README.md)).
+Requires macOS 14 (Sonoma) or later. Prefer Homebrew? `brew tap karakayautku4/hubbub && brew trust karakayautku4/hubbub && brew install --cask hubbub` (recent Homebrew asks you to trust third-party taps; see [packaging/homebrew](packaging/homebrew/README.md)).
 
 <details>
 <summary>Build from source</summary>
