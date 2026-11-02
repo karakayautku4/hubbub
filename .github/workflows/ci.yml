@@ -13,12 +13,12 @@ on:
 
 jobs:
   build:
-    # Build matrix note: only macos-14 (Apple silicon, Sonoma, Xcode 15.x) is exercised today. Add `macos-15`
+    # Build matrix note: only macos-26 (Apple silicon, recent Xcode/Swift) is exercised today. Add `macos-15`
     # (and `macos-13` for Intel) to this matrix once the app has been verified there.
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14]
+        os: [macos-26]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

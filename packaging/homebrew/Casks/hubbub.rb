@@ -1,6 +1,6 @@
 cask "hubbub" do
-  version "0.1.1"
-  sha256 "61d7cf6044e6d5fcba92e4ed70b9d257aaa62d2ddc2eac4f8a0354fd1471e20a" # from SHA256SUMS.txt of the release
+  version "0.1.2"
+  sha256 "3029e6a78c51dec7724ed402cc41bfb548d5bafa1f29228ce24c76ed2889384e" # from SHA256SUMS.txt of the release
 
   url "https://github.com/karakayautku4/hubbub/releases/download/v#{version}/Hubbub-#{version}.dmg"
   name "Hubbub"
