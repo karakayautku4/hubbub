@@ -42,6 +42,7 @@ final class Stage: ObservableObject {
     private let actorsRoot = SCNNode()
     let jobsRoot = SCNNode()
     let arenaExt = ArenaExtension()
+    let zoneLayer = ZoneLayer()
     var arena = ArenaState()
     var lastArenaT: Double?
     var jobProps: [Int: SCNNode] = [:]
@@ -81,6 +82,7 @@ final class Stage: ObservableObject {
 
     init() {
         scene.rootNode.addChildNode(arenaExt.root)
+        scene.rootNode.addChildNode(zoneLayer.root)
         scene.rootNode.addChildNode(jobsRoot)
         scene.rootNode.addChildNode(actorsRoot)
         scene.rootNode.addChildNode(fx.root)
@@ -234,6 +236,7 @@ final class Stage: ObservableObject {
         scene.rootNode.insertChildNode(env, at: 0)
         envNode = env
         arenaExt.build(theme: theme, env: env)
+        zoneLayer.build(theme: theme)
         jobsRoot.childNodes.forEach { $0.removeFromParentNode() }
         jobProps = [:]
         jobFades = [:]; jobBirth = [:]

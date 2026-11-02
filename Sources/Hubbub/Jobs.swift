@@ -101,6 +101,7 @@ enum Jobs {
             for k in -10...10 {
                 let x = 160 + 42 * CGFloat(k) + (r % 2 == 1 ? 21 : 0)
                 if y < 118, x > 10, x < 310 { continue }
+                if x > 312 { continue }
                 let p = CGPoint(x: x, y: y)
                 if !free(p) || pts.contains(where: { hypot($0.x - p.x, $0.y - p.y) < 30 }) { continue }
                 extras.append(p)
@@ -108,7 +109,17 @@ enum Jobs {
         }
         extras.sort { hypot(($0.x - 160) * 0.85, $0.y - 152) < hypot(($1.x - 160) * 0.85, $1.y - 152) }
         pts += extras.prefix(max(0, slotCount - pts.count))
-        let out = pts.enumerated().map { JobSlot(index: $0.offset, pos: $0.element, jobIndex: $0.offset % jobs.count) }
+        // Extra slots reuse the jobs of the zone they fall in, so every room keeps its own kind of work.
+        var byZone: [[Int]] = [[], [], []]
+        for (i, j) in jobs.enumerated() { byZone[Zones.index(atLogicalX: j.spot.x)].append(i) }
+        var seen = [0, 0, 0]
+        let out = pts.enumerated().map { (i, p) -> JobSlot in
+            guard i >= jobs.count else { return JobSlot(index: i, pos: p, jobIndex: i) }
+            let z = Zones.index(atLogicalX: p.x)
+            guard !byZone[z].isEmpty else { return JobSlot(index: i, pos: p, jobIndex: i % jobs.count) }
+            defer { seen[z] += 1 }
+            return JobSlot(index: i, pos: p, jobIndex: byZone[z][seen[z] % byZone[z].count])
+        }
         slotCache[theme] = out
         return out
     }

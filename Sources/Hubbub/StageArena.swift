@@ -11,6 +11,14 @@ extension Stage {
         arena.ease(toward: Jobs.extent(of: slots, theme: theme), dt: dt, snap: snap)
         arenaExt.update(xHalf: arena.xHalf, dt: dt, snap: snap)
         syncJobProps(sim: sim, t: t)
+        var busy = [0, 0, 0], total = [0, 0, 0]
+        let allSlots = sim.jobSlots
+        for a in sim.all where a.phase != .leaving && allSlots.indices.contains(a.jobSlot) {
+            let z = Zones.index(atLogicalX: allSlots[a.jobSlot].pos.x)
+            total[z] += 1
+            if a.phase == .working { busy[z] += 1 }
+        }
+        zoneLayer.update(busy: busy, total: total)
         let size = view?.bounds.size ?? CGSize(width: 636, height: 358)
         // The race strip lies in the foreground, beyond the job area.
         let frame = ArenaMath.frame(xHalf: arena.xHalf, zFar: fun.race.isActive ? max(arena.zFar, 13.6) : arena.zFar, aspect: size.width / max(size.height, 1))
