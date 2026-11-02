@@ -50,7 +50,6 @@ enum ReplyNotifications {
         c.sound = .default
         c.userInfo = info
         if let category { c.categoryIdentifier = category }
-        Notifier.attachIcon(to: c)
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: id, content: c, trigger: nil))
     }
 

@@ -36,8 +36,8 @@ enum NotificationText {
     }
 
     static func finishedBody(elapsed: TimeInterval, calls: Int, failures: Int) -> String {
-        var parts = ["Finished after \(duration(elapsed))"]
-        if calls > 0 { parts.append("\(calls) call\(calls == 1 ? "" : "s")") }
+        var parts = ["Done in \(duration(elapsed))"]
+        if calls > 0 { parts.append("\(calls) tool call\(calls == 1 ? "" : "s")") }
         if failures > 0 { parts.append("\(failures) failed") }
         return parts.joined(separator: " · ")
     }
@@ -55,9 +55,9 @@ enum NotificationSelfTest {
         check(!c.allow("a", now: t0.addingTimeInterval(30)), "repeat within 60s blocked")
         check(c.allow("b", now: t0.addingTimeInterval(30)), "other key allowed")
         check(c.allow("a", now: t0.addingTimeInterval(61)), "allowed after window")
-        check(NotificationText.finishedBody(elapsed: 725, calls: 84, failures: 2) == "Finished after 12m · 84 calls · 2 failed", "rich body")
-        check(NotificationText.finishedBody(elapsed: 30, calls: 1, failures: 0) == "Finished after 30s · 1 call", "short body")
-        check(NotificationText.finishedBody(elapsed: 3900, calls: 0, failures: 0) == "Finished after 1h 5m", "hours body")
+        check(NotificationText.finishedBody(elapsed: 725, calls: 84, failures: 2) == "Done in 12m · 84 tool calls · 2 failed", "rich body")
+        check(NotificationText.finishedBody(elapsed: 30, calls: 1, failures: 0) == "Done in 30s · 1 tool call", "short body")
+        check(NotificationText.finishedBody(elapsed: 3900, calls: 0, failures: 0) == "Done in 1h 5m", "hours body")
         check(NotificationText.summary(count: 3) == "3 sessions finished", "summary")
         print(ok ? "notifications selftest OK" : "notifications selftest FAILED")
         return ok

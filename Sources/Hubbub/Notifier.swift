@@ -6,6 +6,7 @@ import UserNotifications
 final class Notifier {
     static let shared = Notifier()
     private var workingSince: [String: Date] = [:]
+    private var runBaseline: [String: (calls: Int, failures: Int)] = [:]
     private var lastState: [String: SessionState] = [:]
     private var coalescer = NotificationCoalescer()
     private var pendingFinished: [(id: String, name: String, body: String)] = []
@@ -37,15 +38,6 @@ final class Notifier {
         }
     }
 
-    /// Adds the app icon as a thumbnail; the system moves the attached file, so a temp copy is used.
-    nonisolated static func attachIcon(to c: UNMutableNotificationContent) {
-        guard let src = Bundle.main.url(forResource: "NotificationIcon", withExtension: "png") else { return }
-        let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("hubbub-\(UUID().uuidString).png")
-        guard (try? FileManager.default.copyItem(at: src, to: tmp)) != nil,
-              let a = try? UNNotificationAttachment(identifier: "icon", url: tmp) else { return }
-        c.attachments = [a]
-    }
-
     func post(_ title: String, _ body: String, sessionID: String? = nil, id: String = UUID().uuidString,
               category: String? = nil, info: [String: Any] = [:]) {
         guard enabled else { return }
@@ -65,7 +57,6 @@ final class Notifier {
         if let sessionID { c.userInfo = ["sessionID": sessionID] }
         if !info.isEmpty { c.userInfo = info }
         if let category { c.categoryIdentifier = category }
-        Notifier.attachIcon(to: c)
         center.add(UNNotificationRequest(identifier: id, content: c, trigger: nil))
     }
 
@@ -85,12 +76,13 @@ final class Notifier {
         for s in list {
             let prev = lastState[s.id]
             lastState[s.id] = s.state
-            if s.state == .working, workingSince[s.id] == nil { workingSince[s.id] = Date() }
+            if s.state == .working, workingSince[s.id] == nil { workingSince[s.id] = Date(); runBaseline[s.id] = (s.toolCalls, s.failures) }
             if s.state != .working, prev == .working, let since = workingSince[s.id] {
                 workingSince[s.id] = nil
+                let base = runBaseline.removeValue(forKey: s.id) ?? (0, 0)
                 let elapsed = Date().timeIntervalSince(since)
                 if elapsed > 20, NotifyKey.isOn(NotifyKey.finished), coalescer.allow("finished-\(s.id)") {
-                    pendingFinished.append((s.id, s.name, NotificationText.finishedBody(elapsed: elapsed, calls: s.toolCalls, failures: s.failures)))
+                    pendingFinished.append((s.id, s.name, NotificationText.finishedBody(elapsed: elapsed, calls: max(0, s.toolCalls - base.calls), failures: max(0, s.failures - base.failures))))
                     scheduleFlush()
                 }
             }
