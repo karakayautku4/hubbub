@@ -86,8 +86,13 @@ enum Jobs {
             !reserved.contains { hypot($0.x - p.x, $0.y - p.y) < 28 } && !pts.contains { hypot($0.x - p.x, $0.y - p.y) < 30 }
         }
         for j in jobs {
-            let alt = nudges.lazy.map { CGPoint(x: j.spot.x + $0.x, y: j.spot.y + $0.y) }
-                .first { free($0) && $0.x > 12 && $0.x < 308 && $0.y > 104 && $0.y < 194 }
+            var alt: CGPoint?
+            for n in nudges {
+                let c = CGPoint(x: j.spot.x + n.x, y: j.spot.y + n.y)
+                let inX: Bool = c.x > 12 && c.x < 308
+                let inY: Bool = c.y > 104 && c.y < 194
+                if inX && inY && free(c) { alt = c; break }
+            }
             pts.append(free(j.spot) ? j.spot : alt ?? j.spot)
         }
         var extras: [CGPoint] = []
