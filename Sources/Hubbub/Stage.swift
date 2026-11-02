@@ -52,7 +52,7 @@ final class Stage: ObservableObject {
     var labelScale: CGFloat = 1
     /// User zoom (1 = auto-framing). Remembered per session until reset.
     @Published var zoomLevel: CGFloat = 1
-    var isFitted: Bool { zoomLevel == 1 }
+    var isFitted: Bool { zoomLevel == 1 && cameraRig.viewIsDefault }
     private var envNode: SCNNode?
     private var envTheme: Theme?
     private var lights: [SCNNode] = []
@@ -64,6 +64,10 @@ final class Stage: ObservableObject {
     private var lastPublish = 0.0
     private var lastBubblePass = -1000.0
     private var dragging = false
+    private var orbiting = false
+    private var pendingFloor: CGPoint?
+    private var lastDrag: CGPoint?
+    private var panning = false
     private var pressedActor: String?
     private var pressPoint = CGPoint.zero
     weak var view: SCNView?
@@ -562,6 +566,9 @@ final class Stage: ObservableObject {
         cameraRig.poke(t: now)
         pressPoint = p
         dragging = false
+        orbiting = false
+        pendingFloor = nil
+        lastDrag = p
         petted = false
         pressedActor = nil
         pressedWasSelected = false
@@ -588,8 +595,7 @@ final class Stage: ObservableObject {
             select(nil)
             cameraRig.followID = nil
             cameraRig.focus(false)
-            currentSim?.send(captainTo: pt, t: now)
-            Feedback.play("Pop")
+            pendingFloor = pt
         case .none: select(nil)
         }
     }
@@ -608,7 +614,18 @@ final class Stage: ObservableObject {
 
     func pointerDragged(_ p: CGPoint, in v: SCNView) {
         noteInteraction()
-        guard let id = pressedActor, let sim = currentSim else { return }
+        guard let id = pressedActor, let sim = currentSim else {
+            // Dragging empty space orbits the free camera (⌥-drag pans).
+            if CameraMode.current == .free, let last = lastDrag {
+                if !orbiting, hypot(p.x - pressPoint.x, p.y - pressPoint.y) <= 5 { return }
+                orbiting = true
+                let alt = NSEvent.modifierFlags.contains(.option)
+                if alt { cameraRig.pan(dx: p.x - last.x, dy: p.y - last.y) } else { cameraRig.orbit(dx: p.x - last.x, dy: p.y - last.y) }
+                lastDrag = p
+                cameraRig.poke(t: now)
+            }
+            return
+        }
         if !dragging {
             guard hypot(p.x - pressPoint.x, p.y - pressPoint.y) > 5 else { return }
             dragging = true
@@ -619,8 +636,23 @@ final class Stage: ObservableObject {
         if case .floor(let pt) = hit(p, in: v) { sim.drag(id, to: pt) }
     }
 
+    /// Right-button drag pans the free camera.
+    func panDragged(dx: CGFloat, dy: CGFloat) {
+        guard CameraMode.current == .free else { return }
+        noteInteraction()
+        cameraRig.pan(dx: dx, dy: dy)
+        cameraRig.poke(t: now)
+    }
+
     func pointerUp() {
         petTimer?.invalidate()
+        if let pt = pendingFloor, !orbiting {
+            currentSim?.send(captainTo: pt, t: now)
+            Feedback.play("Pop")
+        }
+        pendingFloor = nil
+        orbiting = false
+        lastDrag = nil
         if dragging, let id = pressedActor, let sim = currentSim {
             sim.drop(id, t: now)
             if sim.goToNearestStation(id, t: now) { Feedback.play("Pop") } else { Feedback.play("Tink") }
@@ -740,6 +772,7 @@ final class StageSCNView: SCNView {
         if dy != 0 { stage?.scrollZoom(delta: dy) }
     }
     override func magnify(with event: NSEvent) { stage?.pinchZoom(magnification: event.magnification) }
+    override func rightMouseDragged(with event: NSEvent) { stage?.panDragged(dx: event.deltaX, dy: event.deltaY) }
     override func mouseDragged(with event: NSEvent) { stage?.pointerDragged(convert(event.locationInWindow, from: nil), in: self) }
     override func mouseUp(with event: NSEvent) { stage?.pointerUp() }
     override func mouseExited(with event: NSEvent) { stage?.hoverEnded() }

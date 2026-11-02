@@ -90,8 +90,96 @@ final class UpdateChecker: ObservableObject {
         available = nil
     }
 
-    func download() {
-        if let r = available { NSWorkspace.shared.open(r.downloadTarget) }
+    @Published private(set) var installing = false
+    @Published private(set) var installStatus: String?
+
+    /// Whether the running app can replace itself (a real, user-writable .app bundle).
+    nonisolated static func canSelfInstall(bundlePath: String = Bundle.main.bundlePath) -> Bool {
+        bundlePath.hasSuffix(".app") && FileManager.default.isWritableFile(atPath: (bundlePath as NSString).deletingLastPathComponent)
+    }
+
+    /// Downloads the new build, verifies its signature, swaps it in and relaunches. Falls back to opening the DMG.
+    func install() {
+        guard let r = available, !installing else { return }
+        guard r.assetURL != nil, Self.canSelfInstall() else { NSWorkspace.shared.open(r.downloadTarget); return }
+        installing = true
+        installStatus = "Downloading…"
+        let target = r.downloadTarget
+        let dest = Bundle.main.bundlePath
+        Task {
+            do {
+                let (tmp, resp) = try await URLSession.shared.download(from: target)
+                if let h = resp as? HTTPURLResponse, h.statusCode != 200 { throw InstallError("download failed (HTTP \(h.statusCode))") }
+                installStatus = "Installing…"
+                try await Task.detached { try Self.stageAndSwap(dmg: tmp, dest: dest) }.value
+                installStatus = "Restarting…"
+                try? await Task.sleep(nanoseconds: 400_000_000)
+                NSApp.terminate(nil)
+            } catch {
+                installing = false
+                installStatus = "Couldn't install automatically: \(error.localizedDescription)"
+                lastFailed = true
+                NSWorkspace.shared.open(target)
+            }
+        }
+    }
+
+    struct InstallError: LocalizedError {
+        let errorDescription: String?
+        init(_ m: String) { errorDescription = m }
+    }
+
+    @discardableResult
+    nonisolated static func run(_ tool: String, _ args: [String]) throws -> String {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: tool)
+        p.arguments = args
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = out
+        try p.run()
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        let text = String(decoding: data, as: UTF8.self)
+        guard p.terminationStatus == 0 else { throw InstallError(text.split(separator: "\n").last.map(String.init) ?? "\(tool) failed") }
+        return text
+    }
+
+    nonisolated static func teamID(of app: String) -> String? {
+        guard let t = try? run("/usr/bin/codesign", ["-dv", app]) else { return nil }
+        return t.split(separator: "\n").first { $0.hasPrefix("TeamIdentifier=") }.map { String($0.dropFirst(15)) }
+    }
+
+    /// Mounts the DMG, copies and verifies the app next to the installed one, then starts a helper that swaps it in after we quit.
+    nonisolated static func stageAndSwap(dmg: URL, dest: String) throws {
+        let fm = FileManager.default
+        let work = fm.temporaryDirectory.appendingPathComponent("hubbub-update-\(UUID().uuidString)")
+        let mount = work.appendingPathComponent("mnt")
+        try fm.createDirectory(at: mount, withIntermediateDirectories: true)
+        let image = work.appendingPathComponent("Hubbub.dmg")
+        try fm.moveItem(at: dmg, to: image)
+        try run("/usr/bin/hdiutil", ["attach", "-nobrowse", "-readonly", "-noverify", "-mountpoint", mount.path, image.path])
+        defer { _ = try? run("/usr/bin/hdiutil", ["detach", "-force", mount.path]); try? fm.removeItem(at: work) }
+        guard let appName = try fm.contentsOfDirectory(atPath: mount.path).first(where: { $0.hasSuffix(".app") }) else { throw InstallError("no app in the disk image") }
+        let staged = (dest as NSString).deletingLastPathComponent + "/.Hubbub-update.app"
+        try? fm.removeItem(atPath: staged)
+        try run("/usr/bin/ditto", [mount.appendingPathComponent(appName).path, staged])
+        do {
+            try run("/usr/bin/codesign", ["--verify", "--deep", "--strict", staged])
+            if let mine = teamID(of: dest), teamID(of: staged) != mine { throw InstallError("signature doesn't match this app") }
+        } catch { try? fm.removeItem(atPath: staged); throw error }
+        let script = """
+        while kill -0 \(ProcessInfo.processInfo.processIdentifier) 2>/dev/null; do sleep 0.2; done
+        rm -rf "$1.old" && mv "$1" "$1.old" && mv "$2" "$1" && rm -rf "$1.old" || mv "$1.old" "$1"
+        xattr -dr com.apple.quarantine "$1" 2>/dev/null
+        open "$1"
+        """
+        let helper = Process()
+        helper.executableURL = URL(fileURLWithPath: "/bin/sh")
+        helper.arguments = ["-c", script, "sh", dest, staged]
+        helper.standardOutput = FileHandle.nullDevice
+        helper.standardError = FileHandle.nullDevice
+        try helper.run()
     }
 
     /// Menu-driven check (status item menu): runs a manual check and reports in an alert, since no UI may be open.
@@ -102,10 +190,10 @@ final class UpdateChecker: ObservableObject {
             let alert = NSAlert()
             alert.messageText = available.map { "Version \($0.version) available" } ?? (lastFailed ? "Couldn't check for updates" : "Hubbub")
             alert.informativeText = lastResult ?? ""
-            if available != nil { alert.addButton(withTitle: "Download") }
+            if available != nil { alert.addButton(withTitle: "Update and Restart") }
             alert.addButton(withTitle: "OK")
             NSApp.activate(ignoringOtherApps: true)
-            if alert.runModal() == .alertFirstButtonReturn, available != nil { download() }
+            if alert.runModal() == .alertFirstButtonReturn, available != nil { install() }
         }
     }
 
@@ -230,6 +318,7 @@ final class UpdateChecker: ObservableObject {
 struct UpdateSettingsView: View {
     @ObservedObject var checker = UpdateChecker.shared
     @AppStorage("updateCheckAuto") private var auto = true
+    private static let canInstall = UpdateChecker.canSelfInstall()
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Toggle("Check for updates automatically", isOn: $auto)
@@ -241,8 +330,12 @@ struct UpdateSettingsView: View {
                         .lineLimit(2).fixedSize(horizontal: false, vertical: true)
                         .accessibilityLabel(r)
                 }
+                if let st = checker.installStatus {
+                    if checker.installing { ProgressView().controlSize(.small) }
+                    Text(st).font(.caption2).foregroundStyle(.secondary)
+                }
                 if let a = checker.available, !checker.checking {
-                    Button("Download") { checker.download() }.controlSize(.small)
+                    Button(Self.canInstall ? "Update and Restart" : "Download") { checker.install() }.controlSize(.small).disabled(checker.installing)
                     Button("Release notes") { NSWorkspace.shared.open(a.url) }.controlSize(.small).buttonStyle(.link)
                 }
                 Spacer()

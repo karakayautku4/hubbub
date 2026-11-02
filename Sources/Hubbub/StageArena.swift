@@ -65,7 +65,7 @@ extension Stage {
     }
 
     func zoomBy(direction: Int) { setZoom(ArenaMath.steppedZoom(zoomLevel, direction: direction)) }
-    func resetZoom() { setZoom(1) }
+    func resetZoom() { setZoom(1); cameraRig.resetView(); objectWillChange.send() }
 
     func scrollZoom(delta: CGFloat) { setZoom(ArenaMath.zoom(zoomLevel, scrollDelta: delta)) }
     func pinchZoom(magnification: CGFloat) { setZoom(ArenaMath.zoom(zoomLevel, magnification: magnification)) }

@@ -8,7 +8,7 @@ enum CameraMode: String, CaseIterable, Identifiable {
     var icon: String { switch self { case .free: "viewfinder"; case .follow: "scope"; case .cinematic: "film" } }
     var blurb: String {
         switch self {
-        case .free: "Fixed view with a gentle parallax that follows your pointer."
+        case .free: "Drag the scene to orbit, right-drag or ⌥-drag to pan, scroll to zoom. The fit button resets the view."
         case .follow: "Smoothly follows the selected character. Double-click a character to toggle."
         case .cinematic: "Slow orbit that cuts to spawns, failures and celebrations. Pauses while you interact."
         }
@@ -42,6 +42,33 @@ final class CameraRig {
     private var userZoom: CGFloat = 1
     /// Distance multiplier relative to the base framing (>1 = farther away).
     var distanceMultiplier: CGFloat { fit / userZoom }
+    /// User-controlled view on top of the free camera: orbit angles (radians) and a ground pan; eased like the fit.
+    var orbitYawTarget: CGFloat = 0
+    var orbitPitchTarget: CGFloat = 0
+    var panTarget = CGPoint.zero
+    private var orbitYaw: CGFloat = 0
+    private var orbitPitch: CGFloat = 0
+    private var panCur = CGPoint.zero
+    private var fwd = CGPoint(x: 0, y: -1)
+    static let maxPan = CGPoint(x: 14, y: 9)
+    var viewIsDefault: Bool { orbitYawTarget == 0 && orbitPitchTarget == 0 && panTarget == .zero }
+
+    func orbit(dx: CGFloat, dy: CGFloat) {
+        orbitYawTarget = min(max(orbitYawTarget - dx * 0.008, -1.4), 1.4)
+        orbitPitchTarget = min(max(orbitPitchTarget + dy * 0.006, -0.35), 0.75)
+    }
+
+    func pan(dx: CGFloat, dy: CGFloat) {
+        let k: CGFloat = 0.035 * distanceMultiplier / userZoom
+        let right = CGPoint(x: -fwd.y, y: fwd.x)
+        panTarget.x += (-dx * right.x + dy * fwd.x) * k
+        panTarget.y += (-dx * right.y + dy * fwd.y) * k
+        panTarget.x = min(max(panTarget.x, -Self.maxPan.x), Self.maxPan.x)
+        panTarget.y = min(max(panTarget.y, -Self.maxPan.y), Self.maxPan.y)
+    }
+
+    func resetView() { orbitYawTarget = 0; orbitPitchTarget = 0; panTarget = .zero }
+
     private var lastT: Double?
     private var lastPoke = -100.0
     private var shot: (target: SCNVector3, until: Double)?
@@ -77,12 +104,18 @@ final class CameraRig {
         let m = distanceMultiplier
         let base = SCNVector3(0, 0, 3.5 + lookShiftZ)
         func scaled(_ x: CGFloat, _ y: CGFloat, _ z: CGFloat) -> SCNVector3 { SCNVector3(x, y * m * tilt, base.z + (z - 3.5) * m) }
+        orbitYaw += (orbitYawTarget - orbitYaw) * ez
+        orbitPitch += (orbitPitchTarget - orbitPitch) * ez
+        panCur.x += (panTarget.x - panCur.x) * ez
+        panCur.y += (panTarget.y - panCur.y) * ez
         var wantPos: SCNVector3, wantLook: SCNVector3, rate: Double
+        var userView = false
         switch mode {
         case .free:
             wantPos = scaled(hoverNX * 1.4, 14.2, 22.8)
             wantLook = SCNVector3(hoverNX * 0.4, 0, base.z)
             rate = 8
+            userView = true
         case .follow:
             let tp = follow ?? SCNVector3(0, 0, 3.5)
             let z = zoom / userZoom
@@ -101,6 +134,7 @@ final class CameraRig {
                     wantPos = scaled(hoverNX * 1.4, 14.2, 22.8)
                     wantLook = SCNVector3(hoverNX * 0.4, 0, base.z)
                     rate = 3
+                    userView = true
                 } else {
                     let a = 0.55 * sin(t * 0.11)
                     let r = (21 + 3 * sin(t * 0.07)) * m
@@ -109,6 +143,17 @@ final class CameraRig {
                     rate = 1.5
                 }
             }
+        }
+        if userView {
+            wantLook.x += panCur.x; wantLook.z += panCur.y
+            var ox = wantPos.x - wantLook.x + panCur.x, oy = wantPos.y, oz = wantPos.z - wantLook.z + panCur.y
+            let r = max(sqrt(ox * ox + oy * oy + oz * oz), 0.001)
+            let az = atan2(ox, oz) + orbitYaw
+            let el = min(max(asin(oy / r) + orbitPitch, 0.12), 1.45)
+            ox = r * cos(el) * sin(az); oy = r * sin(el); oz = r * cos(el) * cos(az)
+            wantPos = SCNVector3(wantLook.x + ox, oy, wantLook.z + oz)
+            let fl = hypot(ox, oz)
+            if fl > 0.01 { fwd = CGPoint(x: -ox / fl, y: -oz / fl) }
         }
         let k = CGFloat(1 - exp(-dt * rate))
         zoom += (zoomTarget - zoom) * CGFloat(1 - exp(-dt * 3))

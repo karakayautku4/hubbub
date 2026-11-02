@@ -69,7 +69,7 @@ Answer an agent's question or approve/deny from the menu bar. Off by default; de
 <details>
 <summary><b>🎥 Camera, zoom, day/night & weather</b></summary>
 
-Zoom and pan the stage, jump to a fullscreen view, and enjoy subtle time-of-day and weather ambience (switchable in Settings).
+Drag the stage to orbit, right-drag (or ⌥-drag) to pan, scroll/pinch to zoom (the fit button resets the view). Updates install in-app with one click ("Update and Restart"). Also: fullscreen view, jump to a fullscreen view, and enjoy subtle time-of-day and weather ambience (switchable in Settings).
 </details>
 
 <details>

@@ -547,7 +547,7 @@ struct ContentView: View {
             Button(isWindow ? "Dock to menu bar" : "Expand to window") { SurfaceController.shared.toggleExpanded() }
             if let r = updateOffer {
                 Menu("Update to \(r.version)") {
-                    Button("Download") { updates.download() }
+                    Button("Update and Restart") { updates.install() }
                     Button("Release notes") { NSWorkspace.shared.open(r.url) }
                     Button("Remind me later") { updates.remindLater() }
                     Button("Skip this version") { updates.skip() }
