@@ -69,7 +69,7 @@ Answer an agent's question or approve/deny from the menu bar. Off by default; de
 <details>
 <summary><b>🎥 Camera, zoom, day/night & weather</b></summary>
 
-Drag the stage to orbit, right-drag (or ⌥-drag) to pan, scroll/pinch to zoom (the fit button resets the view). Updates install in-app with one click ("Update and Restart"). Also: fullscreen view, jump to a fullscreen view, and enjoy subtle time-of-day and weather ambience (switchable in Settings).
+Drag the stage to orbit, right-drag (or ⌥-drag) to pan, scroll/pinch to zoom (the fit button resets the view). Updates install in-app with one click ("Update and Restart"). Each theme splits the map into three themed rooms (e.g. stove line, prep and dish pit in the kitchen) with live "working" counts on signs, and every agent gets its own coloured bay. Also: fullscreen view, jump to a fullscreen view, and enjoy subtle time-of-day and weather ambience (switchable in Settings).
 </details>
 
 <details>

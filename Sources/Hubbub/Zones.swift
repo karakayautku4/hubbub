@@ -65,9 +65,10 @@ final class ZoneLayer {
             sm.lightingModel = .constant
             sm.isDoubleSided = true
             sign.geometry?.firstMaterial = sm
-            sign.position = SCNVector3(center, 3.7, 1.2)
+            sign.position = SCNVector3(center, 5.2, -1.0)
             sign.constraints = [{ let c = SCNBillboardConstraint(); c.freeAxes = .Y; return c }()]
             sign.opacity = 0.92
+            sign.renderingOrder = -1
             root.addChildNode(sign)
             signs.append(sign)
             lastText.append("")
@@ -89,10 +90,10 @@ final class ZoneLayer {
             let text = "\(d.emoji) \(d.name)\(status)"
             guard text != lastText[i] else { continue }
             lastText[i] = text
-            let img = Gfx.label(text, size: 30, fg: .white, bg: NSColor(white: 0.08, alpha: 0.72))
+            let img = Gfx.label(text, size: 40, fg: .white, bg: NSColor(white: 0.08, alpha: 0.72))
             signs[i].geometry?.firstMaterial?.diffuse.contents = img
             let aspect = img.size.width / max(img.size.height, 1)
-            (signs[i].geometry as? SCNPlane)?.width = 0.85 * aspect
+            (signs[i].geometry as? SCNPlane)?.width = min(0.85 * aspect, 3.8)
         }
     }
 }
