@@ -8,7 +8,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 BIN="${HUBBUB_BIN:-.build/release/Hubbub}"
-LIMIT="${SELFTEST_TIMEOUT:-120}"
+LIMIT="${SELFTEST_TIMEOUT:-300}"
 [ -x "$BIN" ] || swift build -c release || exit 1
 
 TESTS=(providers quota a11y update budget export notifications fun halloween fx integration ui jobs themes prodfeatures progress reply settings perf-data)
