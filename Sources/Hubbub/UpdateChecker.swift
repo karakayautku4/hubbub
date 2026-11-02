@@ -51,6 +51,7 @@ final class UpdateChecker: ObservableObject {
         checking = true
         if manual {
             lastFailed = false
+            if !installing { installStatus = nil }
             lastResult = "Checking…"
         }
         Task {
@@ -166,7 +167,9 @@ final class UpdateChecker: ObservableObject {
         try run("/usr/bin/ditto", [mount.appendingPathComponent(appName).path, staged])
         do {
             try run("/usr/bin/codesign", ["--verify", "--deep", "--strict", staged])
-            if let mine = teamID(of: dest), teamID(of: staged) != mine { throw InstallError("signature doesn't match this app") }
+            let officialTeam = "9ASKQ39KH2"
+            let mine = teamID(of: dest).flatMap { $0 == "not set" ? nil : $0 } ?? officialTeam
+            if teamID(of: staged) != mine { throw InstallError("the download isn't signed by the same developer") }
         } catch { try? fm.removeItem(atPath: staged); throw error }
         let script = """
         while kill -0 \(ProcessInfo.processInfo.processIdentifier) 2>/dev/null; do sleep 0.2; done
@@ -320,26 +323,26 @@ struct UpdateSettingsView: View {
     @AppStorage("updateCheckAuto") private var auto = true
     private static let canInstall = UpdateChecker.canSelfInstall()
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Toggle("Check for updates automatically", isOn: $auto)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Toggle("Check for updates automatically", isOn: $auto)
+                Spacer()
+                Text("v\(UpdateChecker.currentVersion)").font(.caption).foregroundStyle(.secondary)
+            }
             HStack(spacing: 8) {
-                Button("Check for Updates") { checker.check(manual: true) }.controlSize(.small).disabled(checker.checking)
-                if checker.checking { ProgressView().controlSize(.small) }
-                if let r = checker.lastResult {
-                    Text(r).font(.caption2).foregroundStyle(checker.lastFailed ? Color.orange : Color.secondary)
-                        .lineLimit(2).fixedSize(horizontal: false, vertical: true)
-                        .accessibilityLabel(r)
-                }
-                if let st = checker.installStatus {
-                    if checker.installing { ProgressView().controlSize(.small) }
-                    Text(st).font(.caption2).foregroundStyle(.secondary)
-                }
+                Button("Check for Updates") { checker.check(manual: true) }.controlSize(.small).disabled(checker.checking || checker.installing)
                 if let a = checker.available, !checker.checking {
-                    Button(Self.canInstall ? "Update and Restart" : "Download") { checker.install() }.controlSize(.small).disabled(checker.installing)
+                    Button(Self.canInstall ? "Update and Restart" : "Download") { checker.install() }
+                        .controlSize(.small).buttonStyle(.borderedProminent).disabled(checker.installing)
                     Button("Release notes") { NSWorkspace.shared.open(a.url) }.controlSize(.small).buttonStyle(.link)
                 }
-                Spacer()
-                Text("v\(UpdateChecker.currentVersion)").font(.caption2).foregroundStyle(.secondary)
+                if checker.checking || checker.installing { ProgressView().controlSize(.small) }
+                Spacer(minLength: 0)
+            }
+            if let line = checker.installStatus ?? checker.lastResult {
+                Text(line).font(.caption).foregroundStyle(checker.lastFailed ? Color.orange : Color.secondary)
+                    .lineLimit(3).fixedSize(horizontal: false, vertical: true)
+                    .accessibilityLabel(line)
             }
         }
         .animation(nil, value: checker.lastResult)

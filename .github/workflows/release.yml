@@ -4,9 +4,9 @@ name: Release
 # Signing/notarization is optional: without the secrets below the app is ad-hoc signed (users right-click -> Open once).
 # Secrets (all optional): DEVELOPER_ID_P12_BASE64, DEVELOPER_ID_P12_PASSWORD, SIGN_IDENTITY,
 #   NOTARY_APPLE_ID, NOTARY_TEAM_ID, NOTARY_APP_PASSWORD. See docs/RELEASING.md.
+# Manual only: official releases are signed and notarized locally by scripts/release.sh. A tag-triggered run would
+# overwrite those assets with ad-hoc builds (which the in-app updater rightly rejects).
 on:
-  push:
-    tags: ['v*']
   workflow_dispatch:
     inputs:
       tag:
